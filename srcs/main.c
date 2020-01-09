@@ -26,7 +26,6 @@ void	handle_command(char *cmd) {
 		add_to_history("Error: Unknow command");
 	}
 	
-	//config.update.refresh = 1;
 	config.update.refresh_console = 1;
 }
 
