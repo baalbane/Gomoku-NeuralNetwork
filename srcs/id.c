@@ -15,8 +15,8 @@ void	get_new_id(char *id) {
 	memset(id, 0, sizeof(char)*(ID_SIZE+1));
 	*id = next_id + 'A' - 'a';
 	switch_next_id();
-	add_to_history("Creating player:");
-	add_to_history(id);
+	add_to_history("Creating player: ");
+	add_to_last_history(id);
 }
 
 
@@ -33,6 +33,6 @@ void	get_next_id(char *id, char *last) {
 	}
 	id[i] = next_id;
 	switch_next_id();
-	add_to_history("Creating player:");
-	add_to_history(id);
+	add_to_history("Creating player: ");
+	add_to_last_history(id);
 }

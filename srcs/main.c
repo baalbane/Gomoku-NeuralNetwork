@@ -44,6 +44,7 @@ int main() {
 	char buf[65];
 	
 	while (1) {
+		memset(&buf, 0, sizeof(buf));
 		ret = read(STDIN_FILENO, buf, 65);
 		if (ret > 64) {
 			while (read(STDIN_FILENO, buf, 65) == 65){;}
