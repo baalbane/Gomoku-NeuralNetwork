@@ -115,6 +115,8 @@ void		n_print(Neuron *a);
 //Player
 Player		*p_new(int type);
 Player		*p_copy(Player	*old);
+Player		*p_load(int fd);
+void		p_save(Player *p, int fd);
 void		p_mutate(Player *p);
 void		p_delete(Player *p);
 TYPE_MOVE	choose_next_move(Game_player *p);
@@ -152,7 +154,8 @@ void		set_cmd(char *cmd);
 void		new_cmd(char *cmd);
 void		rm_cmd(char *cmd);
 void		train_cmd(char *cmd);
-
+void		load_cmd(char *cmd);
+void		save_cmd(char *cmd);
 //Tools
 void		Write(int fd, void *value, size_t size);
 void		Read(int fd, void *buf, size_t size);

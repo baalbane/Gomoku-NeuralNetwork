@@ -298,9 +298,122 @@ void	train_cmd(char *cmd) {
 		cmd_train_stop();
 	} else {
 		add_to_history("Error: Unknow train command");
-	}
-	
+	}	
 }
+
+void	cmd_load_player(char *cmd) {
+	int		fd;
+	char	file[128];
+	
+	strcpy(file, "data/players/");
+	strcat(file, cmd);
+	fd = open(file, O_RDONLY);
+	if (fd < 1) {
+		add_to_history("Unknow file");
+		return ;
+	}
+	config.pool = realloc(config.pool, sizeof(Player*) * (config.pool_size + 1));
+	config.pool[config.pool_size] = p_load(fd);
+	config.pool_size++;
+	close(fd);
+}
+
+void	load_cmd(char *cmd) {
+	if (*cmd == '*') {
+		add_to_history("Not coded yet");
+		//cmd_load_all();
+	} else {
+		cmd_load_player(cmd);
+	}
+	config.update.refresh_player_lst = 1;
+}
+
+void	cmd_save_player(char *cmd) {
+	int		fd;
+	char	file[128];
+	Player	*p;
+	
+	p = get_player(cmd);
+	if (!p) {
+		add_to_history("Unknow player");
+		return ;
+	}
+	strcpy(file, "data/players/");
+	strcat(file, cmd);
+	fd = open(file, O_RDWR | O_CREAT | O_TRUNC, 0666);
+	if (fd < 1) {
+		add_to_history("Error : Unable to save player");
+		return ;
+	}
+	p_save(p, fd);
+	close(fd);
+}
+
+void	save_cmd(char *cmd) {
+	if (*cmd == '*') {
+		add_to_history("Not coded yet");
+		//cmd_save_all();
+	} else {
+		cmd_save_player(cmd);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -67,6 +67,24 @@ Player	*p_copy(Player	*old) {
 	return (new);
 }
 
+Player	*p_load(int fd) {
+	Player	*new;
+	
+	new = malloc(sizeof(Player));
+	Read(fd, &(new->id), sizeof(new->id));
+	Read(fd, &(new->type), sizeof(new->type));
+	new->score = 0;
+	new->real_score = 0;
+	new->brain = b_load(fd);
+	return (new);
+}
+
+void	p_save(Player *p, int fd) {
+	Write(fd, &(p->id), sizeof(p->id));
+	Write(fd, &(p->type), sizeof(p->type));
+	b_save(p->brain, fd);
+}
+
 void	p_mutate(Player *p) {
 	b_mutate(p->brain);
 }
