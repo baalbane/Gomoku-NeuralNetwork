@@ -42,6 +42,10 @@ void	add_to_history(char *tmp) {
 	memcpy(config.history[0], tmp, sizeof(char)*65);
 }
 
+void	add_to_last_history(char *tmp) {
+	strcat(config.history[0], tmp);
+}
+
 void	set_dflt_neuron_per_layer(char *data) {
 	int j;
 	
@@ -318,12 +322,30 @@ void	cmd_load_player(char *cmd) {
 	close(fd);
 }
 
+void	cmd_load_pool() {
+	struct dirent	*dir_info;
+    DIR				*dir;
+	
+	dir = opendir("data/players");
+	if (dir == NULL) {
+		add_to_history("Error: Can't open folder data/players");
+		return ;
+	}
+	while ((dir_info = readdir(dir)) != NULL) {
+		if (dir_info->d_type == DT_REG) {
+			cmd_load_player(dir_info->d_name);
+		}
+	}
+	closedir(dir);
+}
+
 void	load_cmd(char *cmd) {
-	if (*cmd == '*') {
-		add_to_history("Not coded yet");
-		//cmd_load_all();
+	if (!strncmp(cmd, "player", 6)) {
+		cmd_load_player(cmd+7);
+	} else if (!strncmp(cmd, "pool", 4)) {
+		cmd_load_pool();
 	} else {
-		cmd_load_player(cmd);
+		add_to_history("Error: Unknow load command");
 	}
 	config.update.refresh_player_lst = 1;
 }
@@ -349,12 +371,30 @@ void	cmd_save_player(char *cmd) {
 	close(fd);
 }
 
+void	cmd_save_pool() {
+	int		fd;
+	char	file[128];
+	
+	for (int i = 0; i < config.pool_size; i++) {
+		strcpy(file, "data/players/");
+		strcat(file, config.pool[i]->id);
+		fd = open(file, O_RDWR | O_CREAT | O_TRUNC, 0666);
+		if (fd < 1) {
+			add_to_history("Error : Unable to save player");
+			return ;
+		}
+		p_save(config.pool[i], fd);
+		close(fd);
+	}
+}
+
 void	save_cmd(char *cmd) {
-	if (*cmd == '*') {
-		add_to_history("Not coded yet");
-		//cmd_save_all();
+	if (!strncmp(cmd, "player", 6)) {
+		cmd_save_player(cmd+7);
+	} else if (!strncmp(cmd, "pool", 4)) {
+		cmd_save_pool();
 	} else {
-		cmd_save_player(cmd);
+		add_to_history("Error: Unknow save command");
 	}
 }
 

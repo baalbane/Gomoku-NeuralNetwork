@@ -10,6 +10,7 @@
 # include <time.h>
 # include <pthread.h>
 # include <string.h>
+# include <dirent.h>
 
 # include "config.h"
 
@@ -150,12 +151,14 @@ void		*graph_thread(void *p_data);
 //Config
 int			init_config();
 void		add_to_history(char *tmp);
+void		add_to_last_history(char *tmp);
 void		set_cmd(char *cmd);
 void		new_cmd(char *cmd);
 void		rm_cmd(char *cmd);
 void		train_cmd(char *cmd);
 void		load_cmd(char *cmd);
 void		save_cmd(char *cmd);
+
 //Tools
 void		Write(int fd, void *value, size_t size);
 void		Read(int fd, void *buf, size_t size);
