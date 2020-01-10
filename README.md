@@ -13,9 +13,9 @@ launch: `./Gomoku`
       
 - `new pool`
 
-- `new game [id] [id]` | id : id of player |
+- `new game [id] [id]` | id : player id 
 
-- `rm player [id]` | id : id of player to del |
+- `rm player [id]` | id : player id
 
 - `rm pool`
 
@@ -23,12 +23,18 @@ launch: `./Gomoku`
 
 - `train stop`
 
-- `load player [file]` | file : file to load |
+- `load player [file]` | file : file to load
 
 - `load pool`
 
-- `save player [id]` | id : id of player to save |
+- `save player [id]` | id : player id 
 
 - `save pool`
+
+- `list player [id]` | id : player id
+
+- `list players`
+
+- `refresh`
 
 - `config`
