@@ -59,7 +59,7 @@ Player	*p_copy(Player	*old) {
 	Player	*new;
 	
 	new = malloc(sizeof(Player));
-	get_next_id(new->id, old->id);
+	memcpy(new->id, old->id, sizeof(char)*(ID_SIZE+1));
 	new->type = old->type;
 	new->score = 0;
 	new->real_score = 0;
@@ -86,6 +86,7 @@ void	p_save(Player *p, int fd) {
 }
 
 void	p_mutate(Player *p) {
+	get_next_id2(p->id);
 	b_mutate(p->brain);
 }
 

@@ -70,23 +70,29 @@ int print_map(char **map) {
 
 
 int		new_game(Player *p1, Player *p2) {
+	int			turn;
 	Game_player	**players;
 	TYPE_MOVE	move;
 	
+	turn = -1;
 	players = init_game(p1, p2);
-	while (1) {
+	while (++turn < config.max_turn_per_game) {
 		move = choose_next_move(players[0]);
 		if (apply_move(players[0], players[1], move)) {
 			delete_game(players);
 			return (1);
 		}
+		++turn;
 		move = choose_next_move(players[1]);
 		if (apply_move(players[1], players[0], move)) {
 			delete_game(players);
 			return (1);
 		}
 	}
-	return (0);	
+	p1->score += config.score_tie;
+	p2->score += config.score_tie;
+	delete_game(players);
+	return (1);
 }
 
 
@@ -113,21 +119,21 @@ int		print_game(Player *p1, Player *p2) {
 		move = choose_next_move(players[0]);
 		if (apply_move(players[0], players[1], move)) {
 			config.update.refresh_dyn_tab = 1;
-			usleep(250);
+			usleep(50000);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		usleep(250);
+		usleep(50000);
 		move = choose_next_move(players[1]);
 		if (apply_move(players[1], players[0], move)) {
 			config.update.refresh_dyn_tab = 1;
-			usleep(250);
+			usleep(50000);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		usleep(250);
+		usleep(50000);
 	}
 	return (0);	
 }

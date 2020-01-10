@@ -61,6 +61,7 @@ typedef struct	t_config {
 	int			dflt_usleep;
 	int			dftl_pool_size;
 	int			dftl_map_size;
+	int			max_turn_per_game;
 	
 	int			dftl_player_type;
 	int			game_per_player;
@@ -85,6 +86,7 @@ typedef struct	t_config {
 	int			actual_menu;
 	
 	char		history[5][65];
+	Player		*p_select;
 	graph_updt	update;
 }				Config;
 
@@ -144,7 +146,7 @@ int			apply_move(Game_player *me, Game_player *adv, TYPE_MOVE move);
 //ID
 void		get_new_id(char *id);
 void		get_next_id(char *id, char *last);
-
+void		get_next_id2(char *id);
 
 //Graphique
 void		*graph_thread(void *p_data);
@@ -159,6 +161,7 @@ void		rm_cmd(char *cmd);
 void		train_cmd(char *cmd);
 void		load_cmd(char *cmd);
 void		save_cmd(char *cmd);
+void		list_cmd(char *cmd);
 
 //Tools
 void		Write(int fd, void *value, size_t size);

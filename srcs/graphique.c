@@ -77,6 +77,8 @@ void	print_config() {
 	printf("score_tie : %d", config.score_tie);
 	SET_CURSOR(y++,4);
 	printf("score_per_capt : %d", config.score_per_capt);
+	SET_CURSOR(y++,4);
+	printf("max_turn_per_game : %d", config.max_turn_per_game);
 	y++;
 	SET_CURSOR(y++,4);
 	printf("dflt_usleep : %d", config.dflt_usleep);
@@ -100,6 +102,49 @@ void	print_game_g() {
 	}
 }
 
+void	print_list_players() {
+	int		x;
+	int		y;
+	
+	y = 0;
+	x = 0;
+	for (int i = 0; i < config.pool_size; i++) {
+		SET_CURSOR(y+4,(x*14)+4);
+		printf("%*s:%d", ID_SIZE, config.pool[i]->id, config.pool[i]->real_score);
+		y++;
+		if (y > 25) {
+			y = 0;
+			x++;
+		}
+		if (x > 9) {
+			return ;
+		}
+	}
+}
+
+void	print_list_player() {
+	Player	*p;
+	Brain	*b;
+	
+	p = config.p_select;
+	b = p->brain;
+	SET_CURSOR(3,5);
+	printf("Id: %s   Score: %d   Type: ", p->id, p->real_score);
+	if (p->type == PLAYER_TYPE_NN0) {
+		printf("NN0");
+	} else if (p->type == PLAYER_TYPE_NN1) {
+		printf("NN1");
+	} else if (p->type == PLAYER_TYPE_HUMAN) {
+		printf("Human");
+	}
+	printf("   Inputs: %d   layer: %d   outputs: %d", b->nb_inputs,
+	b->nb_layer-1, b->neuron_per_layer[b->nb_layer-1]);
+	SET_CURSOR(4,5);
+	printf("Neuron per layer: ");
+	for (int i = 0; i < b->nb_layer-1; i++) {
+		printf("%d ", b->neuron_per_layer[i]);
+	}
+}
 
 void	print_dyn_tab() {
 	if (config.update.dyn_tab == TAB_CONFIG) {
@@ -108,6 +153,10 @@ void	print_dyn_tab() {
 		print_help();
 	} else if (config.update.dyn_tab == TAB_GAME) {
 		print_game_g();
+	} else if (config.update.dyn_tab == TAB_PLAYERS) {
+		print_list_players();
+	} else if (config.update.dyn_tab == TAB_PLAYER) {
+		print_list_player();
 	}
 }
 

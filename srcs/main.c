@@ -24,6 +24,8 @@ void	handle_command(char *cmd) {
 		save_cmd(cmd+5);
 	} else if (!strncmp(cmd, "refresh", 7)) {
 		config.update.refresh = 1;
+	} else if (!strncmp(cmd, "list", 4)) {
+		list_cmd(cmd+5);
 	} else {
 		add_to_history("Error: Unknow command");
 	}

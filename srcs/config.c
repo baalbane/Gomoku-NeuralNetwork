@@ -15,6 +15,7 @@ int		init_config() {
 	config.dflt_usleep = DEFAULT_USLEEP;
 	config.dftl_pool_size = DEFAULT_POOL_SIZE;
 	config.dftl_map_size = DEFAULT_MAP_SIZE;
+	config.max_turn_per_game = DEFAULT_MAX_TURN_PER_GAME;
 	config.dftl_player_type = DEFAULT_PLAYER_TYPE;
 	config.game_per_player = GAME_PER_PLAYER;
 	config.dftl_gen_per_train = DEFAULT_GEN_PER_TRAIN;
@@ -32,6 +33,7 @@ int		init_config() {
 	for (int i = 0; i < 5; i++) {
 		config.history[i][0] = '\0';
 	}
+	config.p_select = NULL;
 	memset(&(config.update), 0, sizeof(graph_updt));
 	return (1);
 }
@@ -103,8 +105,8 @@ void	set_cmd(char *cmd) {
 		config.game_per_player = atoi(cmd+16);
 	} else if (!strncmp(cmd, "dftl_gen_per_train", 18)) {
 		config.dftl_gen_per_train = atoi(cmd+19);
-	} else if (!strncmp(cmd, "dftl_map_size", 13)) {
-		config.dftl_map_size = atoi(cmd+14);
+	} else if (!strncmp(cmd, "map_size", 8)) {
+		config.dftl_map_size = atoi(cmd+9);
 	} else if (!strncmp(cmd, "score_win_align", 15)) {
 		config.score_win_align = atoi(cmd+16);
 	} else if (!strncmp(cmd, "score_win_capt", 14)) {
@@ -117,6 +119,8 @@ void	set_cmd(char *cmd) {
 		config.score_per_capt = atoi(cmd+15);
 	} else if (!strncmp(cmd, "new_player_per_gen", 18)) {
 		config.new_player_per_gen = atoi(cmd+19);
+	} else if (!strncmp(cmd, "max_turn_per_game", 17)) {
+		config.max_turn_per_game = atoi(cmd+18);
 	} else {
 		add_to_history("Error: Unknow variable");
 	}
@@ -174,6 +178,8 @@ void	cmd_new_player(char *opt) {
 	config.pool = realloc(config.pool, sizeof(Player*) * (config.pool_size + 1));
 	config.pool[config.pool_size] = p_new(type);
 	config.pool_size++;
+	add_to_history("Creating player: ");
+	add_to_last_history(config.pool[config.pool_size-1]->id);
 }
 
 void cmd_new_game(char *opt) {
@@ -279,6 +285,10 @@ void	cmd_train_start(char *cmd) {
 	if (config.train == 1) {
 		add_to_history("Error: training already launch");
 		add_to_history("tips: \"train stop\" to stop training");
+		return ;
+	}
+	if (config.pool_size < 2) {
+		add_to_history("Error: need more player for training");
 		return ;
 	}
 	check_player_lst();
@@ -401,9 +411,33 @@ void	save_cmd(char *cmd) {
 	}
 }
 
+void	cmd_list_player(char *cmd) {
+	Player *tmp;
+	
+	tmp = get_player(cmd);
+	if (!tmp) {
+		add_to_history("Error: Unknow player ");
+		add_to_last_history(cmd);
+		return ;
+	}
+	if (config.p_select) {
+		p_delete(config.p_select);
+	}
+	config.p_select = p_copy(tmp);
+	config.update.dyn_tab = TAB_PLAYER;
+	config.update.refresh_dyn_tab = 1;
+}
 
-
-
+void	list_cmd(char *cmd) {
+	if (!strncmp(cmd, "players", 7)) {
+		config.update.dyn_tab = TAB_PLAYERS;
+		config.update.refresh_dyn_tab = 1;
+	} else if (!strncmp(cmd, "player", 6)) {
+		cmd_list_player(cmd+7);
+	} else {
+		add_to_history("Error: Unknow list command");
+	}
+}
 
 
 
