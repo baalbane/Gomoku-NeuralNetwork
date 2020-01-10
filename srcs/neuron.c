@@ -5,6 +5,18 @@ float	get_rand_value() {
 	return ((float)((rand() % (100 * 2)) - 100) / 100.0);
 }
 
+float	mutate_weight(float old) {
+	float new;
+	
+	new = old + (float)((rand() % 2000) - 1000) / 20000.0;
+	if (old > 1.0) {
+		return (1.0);
+	} else if (old < -1.0) {
+		return (-1.0);
+	}
+	return (new);
+}
+
 Neuron	*n_new(int _nb_inputs) {
 	Neuron *new;
 	
@@ -59,9 +71,9 @@ void	n_delete(Neuron *n) {
 
 void	n_mutate(Neuron *n) {
 	for (int i = 0; i < n->nb_inputs; i++) {
-		n->weights[i] += (float)((rand() % 2000) - 1000) / 20000.0;
+		n->weights[i] = mutate_weight(n->weights[i]);
 	}
-	n->Nweight += (float)((rand() % 2000) - 1000) / 20000.0;
+	n->Nweight = mutate_weight(n->Nweight);
 }
 
 float	sigmoid(float a) {

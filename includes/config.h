@@ -9,7 +9,7 @@
 
 # define	DEFAULT_USLEEP				5
 
-# define	DEFAULT_POOL_SIZE			20
+# define	DEFAULT_POOL_SIZE			40
 # define	DEFAULT_PLAYER_TYPE			PLAYER_TYPE_NN0
 # define	GAME_PER_PLAYER				2
 # define	DEFAULT_GEN_PER_TRAIN		100
@@ -21,6 +21,7 @@
 # define	DEFAULT_SCORE_LOOSE			-100
 # define	DEFAULT_SCORE_TIE			-50
 # define	DEFAULT_SCORE_PER_CAPT		20
+# define	DEFAULT_NEW_P_PER_GEN		2
 
 # define	ID_SIZE						6
 

@@ -113,21 +113,21 @@ int		print_game(Player *p1, Player *p2) {
 		move = choose_next_move(players[0]);
 		if (apply_move(players[0], players[1], move)) {
 			config.update.refresh_dyn_tab = 1;
-			sleep(1);
+			usleep(250);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		sleep(1);
+		usleep(250);
 		move = choose_next_move(players[1]);
 		if (apply_move(players[1], players[0], move)) {
 			config.update.refresh_dyn_tab = 1;
-			sleep(1);
+			usleep(250);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		sleep(1);
+		usleep(250);
 	}
 	return (0);	
 }

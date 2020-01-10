@@ -65,6 +65,7 @@ typedef struct	t_config {
 	int			dftl_player_type;
 	int			game_per_player;
 	int			dftl_gen_per_train;
+	int			new_player_per_gen;
 	
 	int			train;
 	int			score_win_align;
@@ -162,7 +163,6 @@ void		save_cmd(char *cmd);
 //Tools
 void		Write(int fd, void *value, size_t size);
 void		Read(int fd, void *buf, size_t size);
-
 
 
 

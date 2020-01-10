@@ -39,51 +39,52 @@ void	print_console() {
 }
 
 void	print_config() {
+	int		y;
 	SET_CURSOR(3,10);
 	printf("CONFIGURATIONS:");
 	
-	SET_CURSOR(5,4);
+	y = 5;
+	SET_CURSOR(y++,4);
 	printf("dflt_inputs : %d", config.dflt_inputs);
-	SET_CURSOR(6,4);
+	SET_CURSOR(y++,4);
 	printf("dflt_nb_layer : %d", config.dflt_nb_layer);
-	SET_CURSOR(7,4);
+	SET_CURSOR(y++,4);
 	printf("dflt_neuron_per_layer : ");
 	for (int i = 0; i < config.dflt_nb_layer; i++) {
 		printf("%d ", config.dflt_neuron_per_layer[i]);
 	}
-	
-	SET_CURSOR(9,4);
+	y++;
+	SET_CURSOR(y++,4);
 	printf("dftl_pool_size : %d", config.dftl_pool_size);
-	SET_CURSOR(10,4);
+	SET_CURSOR(y++,4);
 	printf("dftl_player_type : %s", player_type_str(config.dftl_player_type));
-	SET_CURSOR(11,4);
+	SET_CURSOR(y++,4);
 	printf("game_per_player : %d", config.game_per_player);
-	SET_CURSOR(12,4);
+	SET_CURSOR(y++,4);
 	printf("dftl_gen_per_train : %d", config.dftl_gen_per_train);
-	
-	SET_CURSOR(14,4);
+	SET_CURSOR(y++,4);
+	printf("new_player_per_gen : %d", config.new_player_per_gen);
+	y++;
+	SET_CURSOR(y++,4);
 	printf("map_size : %d", config.dftl_map_size);
-	SET_CURSOR(15,4);
+	SET_CURSOR(y++,4);
 	printf("score_win_align : %d", config.score_win_align);
-	SET_CURSOR(16,4);
+	SET_CURSOR(y++,4);
 	printf("score_win_capt : %d", config.score_win_capt);
-	SET_CURSOR(17,4);
+	SET_CURSOR(y++,4);
 	printf("score_loose : %d", config.score_loose);
-	SET_CURSOR(18,4);
+	SET_CURSOR(y++,4);
 	printf("score_tie : %d", config.score_tie);
-	SET_CURSOR(19,4);
+	SET_CURSOR(y++,4);
 	printf("score_per_capt : %d", config.score_per_capt);
-
-	SET_CURSOR(21,4);
+	y++;
+	SET_CURSOR(y++,4);
 	printf("dflt_usleep : %d", config.dflt_usleep);
 }
 
 void	print_help() {
-	SET_CURSOR(3,10);
-	printf("COMMANDS:");
-	
-	SET_CURSOR(5,4);
-	printf("set variable value | exemple: set dflt_neuron_per_layer 1 2 3 4 5 6\n");
+	SET_CURSOR(4,10);
+	printf("see readme.md for more details on available commands");
 }
 
 void	print_game_g() {

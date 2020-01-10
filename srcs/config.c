@@ -18,6 +18,7 @@ int		init_config() {
 	config.dftl_player_type = DEFAULT_PLAYER_TYPE;
 	config.game_per_player = GAME_PER_PLAYER;
 	config.dftl_gen_per_train = DEFAULT_GEN_PER_TRAIN;
+	config.new_player_per_gen = DEFAULT_NEW_P_PER_GEN;
 	config.train = 0;
 	config.score_win_align = DEFAULT_SCORE_WIN_ALIGN;
 	config.score_win_capt = DEFAULT_SCORE_WIN_CAPT;
@@ -114,6 +115,8 @@ void	set_cmd(char *cmd) {
 		config.score_tie = atoi(cmd+10);
 	} else if (!strncmp(cmd, "score_per_capt", 14)) {
 		config.score_per_capt = atoi(cmd+15);
+	} else if (!strncmp(cmd, "new_player_per_gen", 18)) {
+		config.new_player_per_gen = atoi(cmd+19);
 	} else {
 		add_to_history("Error: Unknow variable");
 	}

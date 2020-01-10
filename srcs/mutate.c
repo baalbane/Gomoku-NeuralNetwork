@@ -32,7 +32,7 @@ int		mutate() {
 	for (cu = 0; cu < config.pool_size/2; cu++) {
 		new[cu] = get_best_player();
 	}
-	for (;cu < config.pool_size-1; cu++) {
+	for (;cu < config.pool_size-config.new_player_per_gen; cu++) {
 		new[cu] = p_copy(new[cu-config.pool_size/2]);
 		p_mutate(new[cu]);
 	}
