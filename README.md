@@ -13,7 +13,9 @@ launch: `./Gomoku`
       
 - `new pool`
 
-- `rm player [id]` | id : id of the player to del |
+- `new game [id] [id]` | id : id of player |
+
+- `rm player [id]` | id : id of player to del |
 
 - `rm pool`
 
@@ -25,7 +27,7 @@ launch: `./Gomoku`
 
 - `load pool`
 
-- `save player [id]` | id : id of the player to save |
+- `save player [id]` | id : id of player to save |
 
 - `save pool`
 
