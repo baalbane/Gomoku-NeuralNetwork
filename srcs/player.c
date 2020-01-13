@@ -7,34 +7,17 @@ void	p_delete(Player *p) {
 	free(p);
 }
 
-void	nn0_new_brain(Player *new) {
-	int	old_output;
+int		p_new_brain(Player *new, int config_type) {
+	Config_nn *conf;
 	
-	if (config.dflt_inputs != 38) {
-		add_to_history("dflt_inputs set to 38 for this type of network");
+	if (config_type >= config.nb_nn) {
+		add_to_history("config not exist");
+		return (0);
 	}
-	old_output = config.dflt_neuron_per_layer[config.dflt_nb_layer-1];
-	if (old_output != 36) {
-		add_to_history("output set to 36 for this type of network");
-	}
-	config.dflt_neuron_per_layer[config.dflt_nb_layer-1] = 36;
-	new->brain = b_new(38, config.dflt_nb_layer, config.dflt_neuron_per_layer);
-	config.dflt_neuron_per_layer[config.dflt_nb_layer-1] = old_output;
-}
-
-void	nn1_new_brain(Player *new) {
-	int	old_output;
-	
-	if (config.dflt_inputs != 38) {
-		add_to_history("dflt_inputs set to 38 for this type of network");
-	}
-	old_output = config.dflt_neuron_per_layer[config.dflt_nb_layer-1];
-	if (old_output != 1) {
-		add_to_history("output set to 1 for this type of network");
-	}
-	config.dflt_neuron_per_layer[config.dflt_nb_layer-1] = 1;
-	new->brain = b_new(38, config.dflt_nb_layer, config.dflt_neuron_per_layer);
-	config.dflt_neuron_per_layer[config.dflt_nb_layer-1] = old_output;
+	conf = config.nn_spec[config_type];
+	new->type = conf->type+PLAYER_TYPE_NN;
+	new->brain = b_new(conf->nb_inputs, conf->nb_layer, conf->neuron_per_layer);	
+	return (1);
 }
 
 Player	*p_new(int type) {
@@ -45,12 +28,16 @@ Player	*p_new(int type) {
 	new->type = type;
 	new->score = 0;
 	new->real_score = 0;
-	if (new->type == PLAYER_TYPE_NN0) {
-		nn0_new_brain(new);
-	} else if (new->type == PLAYER_TYPE_NN1) {
-		nn1_new_brain(new);
-	} else {
+	if (new->type == PLAYER_TYPE_IA || new->type == PLAYER_TYPE_HUMAN) {
 		new->brain = NULL;
+	} else if (new->type >= PLAYER_TYPE_NN) {
+		if (!p_new_brain(new, new->type-PLAYER_TYPE_NN)) {
+			free(new);
+			return NULL;
+		}
+	} else {
+		printf("Error: Unkow player type, should not appened\n");
+		exit(0);
 	}
 	return (new);
 }
@@ -104,9 +91,9 @@ TYPE_MOVE	nn0_next_move(Game_player *p) {
 			res[y][x] = -99.0;
 		}
 	}
-	inputs = malloc(sizeof(float) * DEFAULT_INPUTS);
-	inputs[DEFAULT_INPUTS-2] = (float)p->capt_me / 10.0;
-	inputs[DEFAULT_INPUTS-1] = (float)p->capt_adv / 10.0;
+	inputs = malloc(sizeof(float) * p->player->brain->nb_inputs);
+	inputs[p->player->brain->nb_inputs-2] = (float)p->capt_me / 10.0;
+	inputs[p->player->brain->nb_inputs-1] = (float)p->capt_adv / 10.0;
 	for (int by = 0; by < config.dftl_map_size-NN_MAP_SIZE+1; by++) {
 		for (int bx = 0; bx < config.dftl_map_size-NN_MAP_SIZE+1; bx++) {
 			for (int y = 0; y < NN_MAP_SIZE; y++) {
@@ -150,12 +137,52 @@ TYPE_MOVE	nn0_next_move(Game_player *p) {
 	return (move);
 }
 
+TYPE_MOVE	nn1_next_move(Game_player *p) {
+	float		*inputs;
+	float		*outputs;
+	TYPE_MOVE	move;
+	float		best;
+	float		tmp;
+	
+	move = -1;
+	best = -9999999.9;
+	inputs = malloc(sizeof(float) * p->player->brain->nb_inputs);
+	inputs[p->player->brain->nb_inputs-2] = (float)p->capt_me / 10.0;
+	inputs[p->player->brain->nb_inputs-1] = (float)p->capt_adv / 10.0;
+	for (int yy = 0; yy < config.dftl_map_size; yy++) {
+		for (int xx = 0; xx < config.dftl_map_size; xx++) {
+			if (p->map[yy][xx] != 0) {
+				continue;
+			}
+			p->map[yy][xx] = 1;
+			tmp = 0.0;
+			for (int by = 0; by < config.dftl_map_size-NN_MAP_SIZE+1; by++) {
+				for (int bx = 0; bx < config.dftl_map_size-NN_MAP_SIZE+1; bx++) {
+					for (int y = 0; y < NN_MAP_SIZE; y++) {
+						for (int x = 0; x < NN_MAP_SIZE; x++) {
+							inputs[x+(y*NN_MAP_SIZE)] = (float)p->map[y+by][x+bx];
+						}
+					}
+					outputs = b_launch(p->player->brain, inputs);
+					tmp += outputs[0];
+					free(outputs);
+				}
+			}
+			if (tmp > best) {
+				best = tmp;
+				move = GET_MOVE(xx, yy);
+			}
+			p->map[yy][xx] = 0;
+		}
+	}
+	free(inputs);
+	return (move);
+}
+
 TYPE_MOVE	human_next_move(Game_player *p) {
 	char	buf[65];
 	int		ret;
 	
-	//SET_CURSOR(WIN_HEIGHT-2,4);
-	//fflush(stdout);
 	ret = read(STDIN_FILENO, buf, 64);
 	buf[ret] = '\0';
 	add_to_history(buf);
@@ -165,10 +192,11 @@ TYPE_MOVE	human_next_move(Game_player *p) {
 
 TYPE_MOVE	choose_next_move(Game_player *p) {
 	
-	if (p->player->type == PLAYER_TYPE_NN0) {
-		return (nn0_next_move(p));
-	} else if (p->player->type == PLAYER_TYPE_NN1) {
-		printf("DIDN'T CODE THAT YET\n");
+	if (p->player->type >= PLAYER_TYPE_NN) {
+		if (p->player->type-PLAYER_TYPE_NN == NN_TYPE_0)
+			return (nn0_next_move(p));
+		else if (p->player->type-PLAYER_TYPE_NN == NN_TYPE_1)
+			return (nn1_next_move(p));
 	} else if (p->player->type == PLAYER_TYPE_HUMAN) {
 		return (human_next_move(p));
 	} else if (p->player->type == PLAYER_TYPE_IA) {
@@ -187,18 +215,6 @@ Player		*get_player(char *id) {
 }
 
 
-char		*player_type_str(int type) {
-	if (type == PLAYER_TYPE_NN0) {
-		return ("nn0");
-	} else if (type == PLAYER_TYPE_NN1) {
-		return ("nn1");
-	} else if (type == PLAYER_TYPE_HUMAN) {
-		return ("human");
-	} else if (type == PLAYER_TYPE_IA) {
-		return ("ia");
-	}
-	return ("UNKNOW PLAYER TYPE");
-}
 
 
 

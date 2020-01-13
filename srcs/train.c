@@ -42,9 +42,10 @@ int		make_game() {
 	if (!p1 || !p2) {
 		return (0);
 	}
-	p1->nb_fights++;
-	p2->nb_fights++;
+	p1->nb_fights += 2;
+	p2->nb_fights += 2;
 	new_game(p1, p2);
+	new_game(p2, p1);
 	p1->real_score = p1->score;
 	p2->real_score = p2->score;
 	return (1);

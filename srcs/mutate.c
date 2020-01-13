@@ -37,7 +37,7 @@ int		mutate() {
 		p_mutate(new[cu]);
 	}
 	for (;cu < config.pool_size; cu++) {
-		new[cu] = p_new(config.dftl_player_type);
+		new[cu] = p_new(PLAYER_TYPE_NN+rand()%config.nb_nn);
 	}
 	
 	tmp = config.pool;

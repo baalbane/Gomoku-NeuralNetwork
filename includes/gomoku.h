@@ -21,7 +21,7 @@ typedef struct	t_neuron {
 }				Neuron;
 
 typedef struct	t_brain {
-	int			id;
+	int			type;
 	int			nb_inputs;
 	int			nb_layer;
 	int			*neuron_per_layer;
@@ -54,16 +54,22 @@ typedef struct	t_graph_updt {
 	int			dyn_tab;
 }				graph_updt;
 
+typedef struct	t_config_nn {
+	int			type;
+	int			nb_inputs;
+	int			nb_layer;
+	int			*neuron_per_layer;
+}				Config_nn;
+
 typedef struct	t_config {
-	int			dflt_inputs;
-	int			dflt_nb_layer;
-	int			*dflt_neuron_per_layer;
+	int			nb_nn;
+	Config_nn	**nn_spec;
+	
 	int			dflt_usleep;
 	int			dftl_pool_size;
 	int			dftl_map_size;
 	int			max_turn_per_game;
 	
-	int			dftl_player_type;
 	int			game_per_player;
 	int			dftl_gen_per_train;
 	int			new_player_per_gen;
@@ -125,7 +131,6 @@ void		p_mutate(Player *p);
 void		p_delete(Player *p);
 TYPE_MOVE	choose_next_move(Game_player *p);
 Player		*get_player(char *id);
-char		*player_type_str(int type);
 
 
 //Mutate

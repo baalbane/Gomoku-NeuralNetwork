@@ -4,19 +4,46 @@
 Config 		config;
 pthread_t	train_thread;
 
+void	new_spec(int nn_type) {
+	Config_nn *new;
+	
+	if (config.nb_nn >= 15) {
+		add_to_history("Can't add more spec");
+		return ;
+	}
+	new = malloc(sizeof(Config_nn));
+	new->type = nn_type;
+	if (nn_type == NN_TYPE_0) {
+		new->nb_inputs = DEFAULT_INPUTS_NN0;
+		new->nb_layer = DEFAULT_LAYER_NN0;
+		new->neuron_per_layer = malloc(sizeof(int) * DEFAULT_LAYER_NN0);
+		for (int i = 0; i < DEFAULT_LAYER_NN0; i++) {
+			new->neuron_per_layer[i] = DEFAULT_N_PER_L_NN0[i];
+		}
+	} else if (nn_type == NN_TYPE_1) {
+		new->nb_inputs = DEFAULT_INPUTS_NN1;
+		new->nb_layer = DEFAULT_LAYER_NN1;
+		new->neuron_per_layer = malloc(sizeof(int) * DEFAULT_LAYER_NN1);
+		for (int i = 0; i < DEFAULT_LAYER_NN1; i++) {
+			new->neuron_per_layer[i] = DEFAULT_N_PER_L_NN1[i];
+		}
+	}
+	
+	config.nb_nn++;
+	config.nn_spec = realloc(config.nn_spec, sizeof(Config_nn*)*config.nb_nn);
+	config.nn_spec[config.nb_nn-1] = new;
+}
 
 int		init_config() {
-	config.dflt_inputs = DEFAULT_INPUTS;
-	config.dflt_nb_layer = DEFAULT_LAYER;
-	config.dflt_neuron_per_layer = malloc(sizeof(int) * config.dflt_nb_layer);
-	for (int i = 0; i < config.dflt_nb_layer; i++) {
-		config.dflt_neuron_per_layer[i] = DEFAULT_N_PER_L;
-	}
+	config.nb_nn = 0;
+	config.nn_spec = NULL;
+	new_spec(DEFAULT_SPEC_TYPE);
+	
 	config.dflt_usleep = DEFAULT_USLEEP;
 	config.dftl_pool_size = DEFAULT_POOL_SIZE;
 	config.dftl_map_size = DEFAULT_MAP_SIZE;
 	config.max_turn_per_game = DEFAULT_MAX_TURN_PER_GAME;
-	config.dftl_player_type = DEFAULT_PLAYER_TYPE;
+	//config.dftl_player_type = DEFAULT_PLAYER_TYPE;
 	config.game_per_player = GAME_PER_PLAYER;
 	config.dftl_gen_per_train = DEFAULT_GEN_PER_TRAIN;
 	config.new_player_per_gen = DEFAULT_NEW_P_PER_GEN;
@@ -49,58 +76,74 @@ void	add_to_last_history(char *tmp) {
 	strcat(config.history[0], tmp);
 }
 
-void	set_dflt_neuron_per_layer(char *data) {
+void	set_nn_type(char *cmd, Config_nn *spec) {
+	int		type;
+	
+	type = *cmd - '0';
+	if (type < 0 || type >= NB_NN_TYPE) {
+		add_to_history("Error: Unknow nn type");
+		return ;
+	}
+	spec->type = type;	
+}
+
+void	set_nn_nb_layer(int new, Config_nn *spec) {
+	spec->neuron_per_layer = realloc(spec->neuron_per_layer, sizeof(int)*new);
+	if (new > spec->nb_layer) {
+		for (int i = spec->nb_layer; i < new; i++) {
+			spec->neuron_per_layer[i] = DEFAULT_NEW_N_PER_L;
+		}
+	}
+	spec->nb_layer = new;
+}
+
+void	set_nn_n_per_l(char *data, Config_nn *spec) {
 	int j;
 	
 	j = 0;
-	config.dflt_neuron_per_layer[0] = 0;
+	spec->neuron_per_layer[0] = 0;
 	for (int i = 0; data[i]; i++) {
 		if (data[i] == ' ') {
-			config.dflt_neuron_per_layer[++j] = 0;
+			spec->neuron_per_layer[++j] = 0;
 			continue;
 		}
-		config.dflt_neuron_per_layer[j] = config.dflt_neuron_per_layer[j]*10+data[i]-'0';
+		spec->neuron_per_layer[j] = spec->neuron_per_layer[j]*10+data[i]-'0';
 	}
 }
 
-void	set_dflt_nb_layer(int new) {
-	config.dflt_neuron_per_layer = realloc(config.dflt_neuron_per_layer, sizeof(int)*new);
-	if (new > config.dflt_nb_layer) {
-		for (int i = config.dflt_nb_layer; i < new; i++) {
-			config.dflt_neuron_per_layer[i] = DEFAULT_N_PER_L;
-		}
+void	set_nn_cmd(char *cmd) {
+	int spec;
+	
+	spec = *cmd - '0';
+	if (*(cmd+1) >= '0' && *(cmd+1) <= '9') {
+		spec = spec*10+*(cmd+1) - '0';
+		cmd++;
 	}
-	config.dflt_nb_layer = new;
-}
-
-void	set_dftl_player_type(char *opt) {
-	if (!strncmp(opt, "nn0", 3)) {
-		config.dftl_player_type = PLAYER_TYPE_NN0;
-	} else if (!strncmp(opt, "nn1", 3)) {
-		config.dftl_player_type = PLAYER_TYPE_NN1;
-	} else if (!strncmp(opt, "human", 5)) {
-		config.dftl_player_type = PLAYER_TYPE_HUMAN;
-	} else if (!strncmp(opt, "ia", 2)) {
-		config.dftl_player_type = PLAYER_TYPE_IA;
+	if (spec < 0 || spec >= config.nb_nn) {
+		add_to_history("spec doesn't exist");
+		return ;
+	}
+	if (!strncmp(cmd+2, "type", 4)) {
+		set_nn_type(cmd+7, config.nn_spec[spec]);
+	} else if (!strncmp(cmd+2, "nb_inputs", 9)) {
+		add_to_history("can't change nb_inputs for now");
+	} else if (!strncmp(cmd+2, "nb_layer", 8)) {
+		set_nn_nb_layer(atoi(cmd+11), config.nn_spec[spec]);
+	} else if (!strncmp(cmd+2, "neuron_per_layer", 16)) {
+		set_nn_n_per_l(cmd+19, config.nn_spec[spec]);
 	} else {
-		add_to_history("Error: Unknow player type");
+		add_to_history("Error: unknow variable name");
 	}
+	
 }
 
 void	set_cmd(char *cmd) {
-	if (!strncmp(cmd, "dflt_inputs", 11)) {
-		//config.dflt_inputs = atoi(cmd+12);
-		add_to_history("dflt_inputs should stay 38");
-	} else if (!strncmp(cmd, "dflt_nb_layer", 13)) {
-		set_dflt_nb_layer(atoi(cmd+14));
-	} else if (!strncmp(cmd, "dflt_neuron_per_layer", 21)) {
-		set_dflt_neuron_per_layer(cmd+22);
+	if (!strncmp(cmd, "nn", 2)) {
+		set_nn_cmd(cmd+2);
 	} else if (!strncmp(cmd, "dflt_usleep", 11)) {
 		config.dflt_usleep = atoi(cmd+12);
 	} else if (!strncmp(cmd, "dftl_pool_size", 14)) {
 		config.dftl_pool_size = atoi(cmd+15);
-	} else if (!strncmp(cmd, "dftl_player_type", 16)) {
-		set_dftl_player_type(cmd+17);
 	} else if (!strncmp(cmd, "game_per_player", 15)) {
 		config.game_per_player = atoi(cmd+16);
 	} else if (!strncmp(cmd, "dftl_gen_per_train", 18)) {
@@ -147,7 +190,7 @@ void	cmd_new_pool(char *opt) {
 		}
 	} else {
 		for (int i = config.pool_size; i < new_size; i++) {
-			new_pool[i] = p_new(PLAYER_TYPE_NN0);
+			new_pool[i] = p_new(PLAYER_TYPE_NN+rand()%config.nb_nn);
 		}
 	}
 	config.pool_size = new_size;
@@ -157,15 +200,18 @@ void	cmd_new_pool(char *opt) {
 
 void	cmd_new_player(char *opt) {
 	int		type;
+	int		nn_type;
 	
-	if (strlen(opt) < 10) {
+	if (strlen(opt) < 8) {
 		add_to_history("Error: Unknow player type");
 		return ;
 	}
-	if (!strncmp(opt+7, "nn0", 3)) {
-		type = PLAYER_TYPE_NN0;
-	} else if (!strncmp(opt+7, "nn1", 3)) {
-		type = PLAYER_TYPE_NN1;
+	if (!strncmp(opt+7, "nn", 2)) {
+		if (opt[10] == '\0') {
+			type = PLAYER_TYPE_NN+rand()%config.nb_nn;
+		} else {
+			type = PLAYER_TYPE_NN + opt[10]-'0';
+		}
 	} else if (!strncmp(opt+7, "human", 5)) {
 		type = PLAYER_TYPE_HUMAN;
 	} else if (!strncmp(opt+7, "ia", 2)) {
@@ -207,6 +253,22 @@ void cmd_new_game(char *opt) {
 	print_game(p1, p2);
 }
 
+void	cmd_new_spec(char *opt) {
+	int type;
+	
+	if (*opt == '\0') {
+		type = DEFAULT_SPEC_TYPE;
+	} else {
+		type = *opt-'0';
+	}
+	if (type < 0 || type > NB_NN_TYPE) {
+		add_to_history("Error: Unknow type");
+		return ;
+	}
+	new_spec(type);
+	config.update.refresh_dyn_tab = 1;
+}
+
 void	new_cmd(char *cmd) {
 	if (!strncmp(cmd, "pool", 4)) {
 		cmd_new_pool(cmd);
@@ -214,6 +276,8 @@ void	new_cmd(char *cmd) {
 		cmd_new_player(cmd);
 	} else if (!strncmp(cmd, "game", 4)) {
 		cmd_new_game(cmd);
+	} else if (!strncmp(cmd, "spec", 4)) {
+		cmd_new_spec(cmd+5);
 	} else {
 		add_to_history("Error: Unknow new command");
 	}
@@ -254,6 +318,26 @@ void	cmd_rm_player(char *opt) {
 	config.pool_size--;
 }
 
+void	del_spec(Config_nn *spec) {
+	free(spec->neuron_per_layer);
+	free(spec);
+}
+
+void	cmd_rm_spec(int spec) {
+	if (spec < 0 || spec >= config.nb_nn) {
+		add_to_history("Error: Unknow spec");
+		return ;
+	} else if (config.nb_nn == 1) {
+		add_to_history("Error: Can't rm last spec");
+		return ;
+	}
+	del_spec(config.nn_spec[spec]);
+	for (int i = spec; i < config.nb_nn-1; i++) {
+		config.nn_spec[i] = config.nn_spec[i+1];
+	}
+	config.nb_nn--;
+	config.nn_spec[config.nb_nn] = NULL;
+}
 
 
 void	rm_cmd(char *cmd) {
@@ -261,6 +345,9 @@ void	rm_cmd(char *cmd) {
 		cmd_rm_pool();
 	} else if (!strncmp(cmd, "player", 6)) {
 		cmd_rm_player(cmd);
+	} else if (!strncmp(cmd, "spec", 4)) {
+		cmd_rm_spec(*(cmd+5)-'0');
+		config.update.refresh_dyn_tab = 1;
 	} else {
 		add_to_history("Error: Unknow rm command");
 	}

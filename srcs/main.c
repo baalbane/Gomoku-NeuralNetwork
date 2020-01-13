@@ -4,7 +4,10 @@
 void	handle_command(char *cmd) {
 	add_to_history(cmd);
 	
-	if (!strncmp(cmd, "config", 6)) {
+	if (!strncmp(cmd, "config nn", 9)) {
+		config.update.dyn_tab = TAB_CONFIG_NN;
+		config.update.refresh_dyn_tab = 1;
+	} else if (!strncmp(cmd, "config", 6)) {
 		config.update.dyn_tab = TAB_CONFIG;
 		config.update.refresh_dyn_tab = 1;
 	} else if (!strncmp(cmd, "set", 3)) {
