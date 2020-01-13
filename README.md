@@ -8,16 +8,22 @@ launch: `./Gomoku`
 ## Available commands:
 
 - `set [variable] [value]` | variable: any variable name   |   value: value to set
+
+- `set nn[spec] [variable] [value]` | spec: spec number | variable: any variable name   |   value: value to set
     
-- `new player [type]` | type: nn0, nn1, ia or human |
+- `new player [type]` | type: nn, nn[spec], ia or human
       
 - `new pool`
 
 - `new game [id] [id]` | id : player id 
 
+- `new spec [(type])` | type: optional, type of nn (0 or 1)
+
 - `rm player [id]` | id : player id
 
 - `rm pool`
+
+- `rm spec [spec]` | spec : spec number
 
 - `train start ([nb_gen])` | nb_gen : optional, -1 for illimited
 
@@ -38,3 +44,5 @@ launch: `./Gomoku`
 - `refresh`
 
 - `config`
+
+- `config nn`
