@@ -43,16 +43,20 @@ int		init_config() {
 	config.dftl_pool_size = DEFAULT_POOL_SIZE;
 	config.dftl_map_size = DEFAULT_MAP_SIZE;
 	config.max_turn_per_game = DEFAULT_MAX_TURN_PER_GAME;
-	//config.dftl_player_type = DEFAULT_PLAYER_TYPE;
+	config.game_adv = NULL;
+	config.double_fight = 1;
+	
 	config.game_per_player = GAME_PER_PLAYER;
 	config.dftl_gen_per_train = DEFAULT_GEN_PER_TRAIN;
 	config.new_player_per_gen = DEFAULT_NEW_P_PER_GEN;
+	config.max_family_number = DEFAULT_MAX_FAMILY_NUMBER;
 	config.train = 0;
 	config.score_win_align = DEFAULT_SCORE_WIN_ALIGN;
 	config.score_win_capt = DEFAULT_SCORE_WIN_CAPT;
 	config.score_loose = DEFAULT_SCORE_LOOSE;
 	config.score_tie = DEFAULT_SCORE_TIE;
 	config.score_per_capt = DEFAULT_SCORE_PER_CAPT;
+	config.score_per_turn = DEFAULT_SCORE_PER_TURN;
 	config.map = NULL;
 	config.pool = NULL;
 	config.actual_menu = MENU_1;
@@ -132,9 +136,31 @@ void	set_nn_cmd(char *cmd) {
 	} else if (!strncmp(cmd+2, "neuron_per_layer", 16)) {
 		set_nn_n_per_l(cmd+19, config.nn_spec[spec]);
 	} else {
-		add_to_history("Error: unknow variable name");
+		add_to_history("Error: Unknow variable name");
 	}
 	
+}
+
+void	set_game_adv_cmd(char *opt) {
+	Player	*new;
+	
+	if (!strncmp(opt, "null", 4)) {
+		new = NULL;
+	} else {
+		new = get_player(opt);
+		if (new == NULL) {
+			add_to_history("Error: Unknow player");
+			return ;
+		} else if (new->type == PLAYER_TYPE_HUMAN) {
+			add_to_history("Error: Can't set human player as adv");
+			return ;
+		}
+		new = p_copy(new);
+	} 
+	if (config.game_adv) {
+		p_delete(config.game_adv);
+	}
+	config.game_adv = new;
 }
 
 void	set_cmd(char *cmd) {
@@ -160,10 +186,18 @@ void	set_cmd(char *cmd) {
 		config.score_tie = atoi(cmd+10);
 	} else if (!strncmp(cmd, "score_per_capt", 14)) {
 		config.score_per_capt = atoi(cmd+15);
+	} else if (!strncmp(cmd, "score_per_turn", 14)) {
+		config.score_per_turn = atoi(cmd+15);
 	} else if (!strncmp(cmd, "new_player_per_gen", 18)) {
 		config.new_player_per_gen = atoi(cmd+19);
+	} else if (!strncmp(cmd, "max_family_number", 17)) {
+		config.max_family_number = atoi(cmd+18);
 	} else if (!strncmp(cmd, "max_turn_per_game", 17)) {
 		config.max_turn_per_game = atoi(cmd+18);
+	} else if (!strncmp(cmd, "double_fight", 12)) {
+		config.double_fight = atoi(cmd+13) ? 1 : 0;
+	} else if (!strncmp(cmd, "game_adv", 8)) {
+		set_game_adv_cmd(cmd+9);
 	} else {
 		add_to_history("Error: Unknow variable");
 	}
@@ -214,8 +248,12 @@ void	cmd_new_player(char *opt) {
 		}
 	} else if (!strncmp(opt+7, "human", 5)) {
 		type = PLAYER_TYPE_HUMAN;
-	} else if (!strncmp(opt+7, "ia", 2)) {
-		type = PLAYER_TYPE_IA;
+	} else if (!strncmp(opt+7, "ia0", 3)) {
+		type = PLAYER_TYPE_IA0;
+	} else if (!strncmp(opt+7, "ia1", 3)) {
+		type = PLAYER_TYPE_IA1;
+	} else if (!strncmp(opt+7, "ia2", 3)) {
+		type = PLAYER_TYPE_IA2;
 	} else {
 		add_to_history("Error: Unknow player type");
 		return ;
@@ -356,8 +394,10 @@ void	rm_cmd(char *cmd) {
 
 void	check_player_lst() {
 	for (int i = 0; i < config.pool_size; i++) {
-		if (config.pool[i]->type == PLAYER_TYPE_HUMAN) {
-			add_to_history("Human player deleted from pool");
+		if (config.pool[i]->type == PLAYER_TYPE_HUMAN
+		|| config.pool[i]->type == PLAYER_TYPE_IA0) {
+			add_to_history("Player deleted from pool: ");
+			add_to_last_history(config.pool[i]->id);
 			p_delete(config.pool[i]);
 			for (int j = i; j < config.pool_size-1; j++) {
 				config.pool[j] = config.pool[j+1];
@@ -476,6 +516,10 @@ void	cmd_save_pool() {
 	char	file[128];
 	
 	for (int i = 0; i < config.pool_size; i++) {
+		if (config.pool[i]->type == PLAYER_TYPE_HUMAN
+		|| config.pool[i]->type == PLAYER_TYPE_IA0) {
+			continue;
+		}
 		strcpy(file, "data/players/");
 		strcat(file, config.pool[i]->id);
 		fd = open(file, O_RDWR | O_CREAT | O_TRUNC, 0666);

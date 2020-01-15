@@ -6,7 +6,11 @@ OPTFLAG= -O3 -lm -lpthread -g
 
 
 SRCS_PATH = srcs/
-SRCS_NAME = brain.c	neuron.c tools.c config.c graphique.c id.c player.c game.c apply_move.c train.c mutate.c
+SRCS_NAME =		brain.c			neuron.c	tools.c		config.c	\
+				graphique.c		id.c		player.c	game.c		\
+				apply_move.c	train.c		mutate.c	ia0.c		\
+				ia1.c			ia2.c
+				
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 
 

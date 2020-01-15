@@ -69,10 +69,13 @@ typedef struct	t_config {
 	int			dftl_pool_size;
 	int			dftl_map_size;
 	int			max_turn_per_game;
+	Player		*game_adv;
+	int			double_fight;
 	
 	int			game_per_player;
 	int			dftl_gen_per_train;
 	int			new_player_per_gen;
+	int			max_family_number;
 	
 	int			train;
 	int			score_win_align;
@@ -80,6 +83,7 @@ typedef struct	t_config {
 	int			score_loose;
 	int			score_tie;
 	int			score_per_capt;
+	int			score_per_turn;
 	
 	int			total_gen;
 	int			actual_gen;
@@ -132,7 +136,10 @@ void		p_delete(Player *p);
 TYPE_MOVE	choose_next_move(Game_player *p);
 Player		*get_player(char *id);
 
-
+//Ia
+TYPE_MOVE	ia0_next_move(Game_player *p);
+TYPE_MOVE	ia1_next_move(Game_player *p);
+TYPE_MOVE	ia2_next_move(Game_player *p);
 //Mutate
 int			mutate();
 

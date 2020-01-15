@@ -61,26 +61,16 @@ void	print_config() {
 	printf("CONFIGURATIONS:");
 	
 	y = 5;
-	/*SET_CURSOR(y++,4);
-	printf("dflt_inputs : %d", config.dflt_inputs);
-	SET_CURSOR(y++,4);
-	printf("dflt_nb_layer : %d", config.dflt_nb_layer);
-	SET_CURSOR(y++,4);
-	printf("dflt_neuron_per_layer : ");
-	for (int i = 0; i < config.dflt_nb_layer; i++) {
-		printf("%d ", config.dflt_neuron_per_layer[i]);
-	}
-	y++;*/
 	SET_CURSOR(y++,4);
 	printf("dftl_pool_size : %d", config.dftl_pool_size);
-	//SET_CURSOR(y++,4);
-	//printf("dftl_player_type : %s", player_type_str(config.dftl_player_type));
 	SET_CURSOR(y++,4);
 	printf("game_per_player : %d", config.game_per_player);
 	SET_CURSOR(y++,4);
 	printf("dftl_gen_per_train : %d", config.dftl_gen_per_train);
 	SET_CURSOR(y++,4);
 	printf("new_player_per_gen : %d", config.new_player_per_gen);
+	SET_CURSOR(y++,4);
+	printf("max_family_number : %d", config.max_family_number);
 	y++;
 	SET_CURSOR(y++,4);
 	printf("map_size : %d", config.dftl_map_size);
@@ -95,7 +85,19 @@ void	print_config() {
 	SET_CURSOR(y++,4);
 	printf("score_per_capt : %d", config.score_per_capt);
 	SET_CURSOR(y++,4);
+	printf("score_per_turn : %d", config.score_per_turn);
+	SET_CURSOR(y++,4);
 	printf("max_turn_per_game : %d", config.max_turn_per_game);
+	SET_CURSOR(y++,4);
+	printf("game_adv : ");
+	if (config.game_adv) {
+		printf("%s", config.game_adv->id);
+	} else {
+		printf("None");
+	}
+	SET_CURSOR(y++,4);
+	printf("double_fight : %d", config.double_fight);
+	
 	y++;
 	SET_CURSOR(y++,4);
 	printf("dflt_usleep : %d", config.dflt_usleep);
@@ -151,6 +153,8 @@ void	print_list_player() {
 		printf("nn%d", p->type-PLAYER_TYPE_NN);
 	} else if (p->type == PLAYER_TYPE_HUMAN) {
 		printf("Human");
+	} else if (p->type > PLAYER_TYPE_HUMAN && p->type < PLAYER_TYPE_NN) {
+		printf("Ia%d", p->type-PLAYER_TYPE_IA0);
 	}
 	printf("   Inputs: %d   layer: %d   outputs: %d", b->nb_inputs,
 	b->nb_layer-1, b->neuron_per_layer[b->nb_layer-1]);

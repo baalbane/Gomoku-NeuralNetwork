@@ -88,6 +88,8 @@ int		new_game(Player *p1, Player *p2) {
 			delete_game(players);
 			return (1);
 		}
+		p1->score += config.score_per_turn;
+		p2->score += config.score_per_turn;
 	}
 	p1->score += config.score_tie;
 	p2->score += config.score_tie;
@@ -119,21 +121,21 @@ int		print_game(Player *p1, Player *p2) {
 		move = choose_next_move(players[0]);
 		if (apply_move(players[0], players[1], move)) {
 			config.update.refresh_dyn_tab = 1;
-			usleep(50000);
+			usleep(500000);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		usleep(50000);
+		usleep(500000);
 		move = choose_next_move(players[1]);
 		if (apply_move(players[1], players[0], move)) {
 			config.update.refresh_dyn_tab = 1;
-			usleep(50000);
+			usleep(500000);
 			delete_print_game(players);
 			return (1);
 		}
 		config.update.refresh_dyn_tab = 1;
-		usleep(50000);
+		usleep(500000);
 	}
 	return (0);	
 }

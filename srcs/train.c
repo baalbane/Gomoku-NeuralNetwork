@@ -36,16 +36,27 @@ Player	*get_fightless_player(Player *exclude) {
 }
 
 int		make_game() {
-	Player	*p1 = get_fightless_player(NULL);
-	Player	*p2 = get_fightless_player(p1);
+	Player	*p1;
+	Player	*p2;
 	
+	p1 = get_fightless_player(NULL);
+	if (config.game_adv) {
+		p2 = p1;
+		p1 = config.game_adv;
+	} else {
+		p2 = get_fightless_player(p1);
+	}
 	if (!p1 || !p2) {
 		return (0);
 	}
-	p1->nb_fights += 2;
-	p2->nb_fights += 2;
+	p1->nb_fights++;
+	p2->nb_fights++;
 	new_game(p1, p2);
-	new_game(p2, p1);
+	if (config.double_fight) {
+		new_game(p2, p1);
+		p1->nb_fights++;
+		p2->nb_fights++;
+	}
 	p1->real_score = p1->score;
 	p2->real_score = p2->score;
 	return (1);
@@ -58,6 +69,9 @@ void	*train(void	*data) {
 		while (make_game()){;}
 		mutate();
 		config.update.refresh_player_lst = 1;
+		if (config.update.dyn_tab == TAB_PLAYERS) {
+			config.update.refresh_dyn_tab = 1;
+		}
 		if (config.total_gen > 0) {
 			config.actual_gen++;
 		}

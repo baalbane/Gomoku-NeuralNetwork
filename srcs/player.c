@@ -28,7 +28,7 @@ Player	*p_new(int type) {
 	new->type = type;
 	new->score = 0;
 	new->real_score = 0;
-	if (new->type == PLAYER_TYPE_IA || new->type == PLAYER_TYPE_HUMAN) {
+	if (new->type >= PLAYER_TYPE_HUMAN && new->type < PLAYER_TYPE_NN) {
 		new->brain = NULL;
 	} else if (new->type >= PLAYER_TYPE_NN) {
 		if (!p_new_brain(new, new->type-PLAYER_TYPE_NN)) {
@@ -199,8 +199,15 @@ TYPE_MOVE	choose_next_move(Game_player *p) {
 			return (nn1_next_move(p));
 	} else if (p->player->type == PLAYER_TYPE_HUMAN) {
 		return (human_next_move(p));
-	} else if (p->player->type == PLAYER_TYPE_IA) {
-		printf("DIDN'T CODE THAT YET\n");
+	} else if (p->player->type == PLAYER_TYPE_IA0) {
+		return (ia0_next_move(p));
+	} else if (p->player->type == PLAYER_TYPE_IA1) {
+		return (ia1_next_move(p));
+	} else if (p->player->type == PLAYER_TYPE_IA2) {
+		return (ia2_next_move(p));
+	} else {
+		printf("ERROR, UNDEFINED PLAYER TYPE\n");
+		exit(0);
 	}
 }
 

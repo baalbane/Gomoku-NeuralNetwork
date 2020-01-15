@@ -1,0 +1,37 @@
+config nn
+new spec 1
+rm spec 0
+new spec 0
+new spec 0
+new spec 0
+new spec 0
+
+set nn1 nb_layer 3
+set nn2 nb_layer 3
+set nn2 nb_layer 2
+set max_turn_per_game 75
+
+set dftl_pool_size 40
+set double_fight 0
+set game_per_player 3
+set new_player_per_gen 10
+set max_family_number 4
+
+set score_per_turn 1
+set score_per_capt 10
+set score_win_align 1000
+set score_win_capt 970
+set score_loose -1000
+set score_tie -500
+
+
+
+rm pool
+new player ia0
+set game_adv A
+rm player A
+
+new pool
+list players
+refresh
+

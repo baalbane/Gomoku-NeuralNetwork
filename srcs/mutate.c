@@ -1,7 +1,7 @@
 
 #include "gomoku.h"
 
-Player	*get_best_player() {
+Player	*get_best_player(int *family) {
 	int		start_pos;
 	Player	*best;
 	int		best_score;
@@ -14,12 +14,14 @@ Player	*get_best_player() {
 			i = -1;
 			continue;
 		}
-		if (config.pool[i]->score > best_score) {
+		if (config.pool[i]->score > best_score
+		&& family[config.pool[i]->id[0] - 'A'] < config.max_family_number) {
 			best = config.pool[i];
 			best_score = config.pool[i]->score;
 		}
 	}
 	best->score = -42042042;
+	family[best->id[0] - 'A']++;
 	return (best);
 }
 
@@ -27,10 +29,12 @@ int		mutate() {
 	Player	**new;
 	Player	**tmp;
 	int		cu;
+	int		family[30];
 	
+	memset(family, 0, sizeof(family));
 	new = malloc(sizeof(Player*) * config.pool_size);
 	for (cu = 0; cu < config.pool_size/2; cu++) {
-		new[cu] = get_best_player();
+		new[cu] = get_best_player(family);
 	}
 	for (;cu < config.pool_size-config.new_player_per_gen; cu++) {
 		new[cu] = p_copy(new[cu-config.pool_size/2]);
